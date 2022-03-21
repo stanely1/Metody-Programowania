@@ -6,8 +6,9 @@
 ((lambda (x) x) (lambda (x) x))
 ;-> (lambda (x) x) -> #<procedure>  /podstawienie x = (lambda (x) x)
 
-((lambda (x) x x) (lambda (x) x)) ; ?
-;(lambda (x) x) -> #<procedure> /podstawienie (ten drugi)x=(lambda (x) x)
+((lambda (x) (x x)) (lambda (x) x)) ; ?
+;-> /w (x x) za x podstawiamy (lambda ...)/ -> ((lambda (x) x) (lambda (x) x)) -> (lambda (x) x)
 
-((lambda (x) x x) (lambda (x) x x))
-;(lambda (x) x x) -> #<procedure> /podstawienie (ten drugi)x=(lambda (x) x x)
+((lambda (x) (x x)) (lambda (x) (x x)))
+;-> /jak wyzej/ -> ((lambda (x) (x x)) (lambda (x) (x x))) -> /za (x x) wstawimay (lambda ...)/ ->
+;-> ((lambda (x) (x x)) ((lambda (x) (x x))) -> ... -> to samo - zapetla sie
