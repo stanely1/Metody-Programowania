@@ -1,7 +1,7 @@
 #lang racket
 
 (define (list->llist xs)
-  (lambda (x) (if (null? x) xs (append xs x))))
+  (lambda (x) (append xs x)))
 
 (define (llist->list f)
   (f null))
