@@ -13,4 +13,4 @@
                                  (lambda (x) (cons (first ys) x))
                                  (perms (del (first ys) ls)))
                                 (aux (rest ys) xs))]))]
-    (aux xs xs)))
+    (if (empty? xs) (list xs) (aux xs xs))))
