@@ -57,30 +57,46 @@
                        [(equal? (column-info-type (car col)) 'symbol) (symbol? (car row))]
                        [(equal? (column-info-type (car col)) 'boolean) (boolean? (car row))])
                  (valid? (cdr row) (cdr col)))])) ; zgodnosc typow
+  
   (if (valid? row (table-schema tab))
       (table (table-schema tab) (cons row (table-rows tab)))
       (error 'table-insert "invalid row!")))
 
 ; Projekcja
 
+(define (get-col-num name tab) ; numer kolumny
+  (define (it col num)
+    (if (equal? (column-info-name (car col)) name)
+        num
+        (it (cdr col) (+ 1 num))))
+  (it (table-schema tab) 0))
+
 (define (table-project cols tab)
-  (define (filter-row row col which)
-    (cond [(or (null? which) (null? col)) null]
-          [(equal? (column-info-name (car col)) (car which))
-           (cons (car row) (filter-row (cdr row) (cdr col) (cdr which)))]
-          [else (filter-row (cdr row) (cdr col) which)]))
+  (define (make-filter-list cols)
+    (if (null? cols)
+        null
+        (cons (get-col-num (car cols) tab)
+              (make-filter-list (cdr cols)))))
+  
+  (define filter-list (make-filter-list cols))
+  
+  (define (filter-row row lst)
+    (if (null? lst)
+        null
+        (cons (list-ref row (car lst)) (filter-row row (cdr lst)))))
+  
   (define (filter-all rows)
     (if (null? rows)
         null
-        (cons (filter-row (car rows) (table-schema tab) cols)
+        (cons (filter-row (car rows) filter-list)
               (filter-all (cdr rows)))))
-  (define (make-schema cols which)
-    (cond [(or (null? cols) (null? which)) null]
-          [(equal? (column-info-name (car cols)) (car which))
-           (cons (column-info (car which) (column-info-type (car cols)))
-                 (make-schema (cdr cols) (cdr which)))]
-          [else (make-schema (cdr cols) which)]))
-  (table (make-schema (table-schema tab) cols) (filter-all (table-rows tab))))
+  
+  (define (make-schema cols lst)
+    (if (null? lst)
+        null
+        (cons (list-ref cols (car lst)) (make-schema cols (cdr lst)))))
+  
+  (table (make-schema (table-schema tab) filter-list) (filter-all (table-rows tab))))
 
 ; Sortowanie
 
@@ -120,13 +136,6 @@
 (define-struct lt-f (name val))
 
 (define (table-select form tab)
-  (define (get-col-num name) ; numer kolumny
-    (define (it col num)
-      (if (equal? (column-info-name (car col)) name)
-          num
-          (it (cdr col) (+ 1 num))))
-    (it (table-schema tab) 0))
-
   (define (cmp val1 val2 type) ; porownaie val1 < val2 w zaleznosci of typu
     (cond [(equal? type 'number) (< val1 val2)]
           [(equal? type 'string) (string<? val1 val2)]
@@ -135,15 +144,15 @@
     
   (define (check row f) ; sprawdzenie pojedynczego wiersza
     (cond [(lt-f? f)
-           (let [(num (get-col-num (lt-f-name f)))]
+           (let [(num (get-col-num (lt-f-name f) tab))]
              (cmp (list-ref row num) (lt-f-val f)
                   (column-info-type (list-ref (table-schema tab) num))))]
           [(eq-f? f)
-           (let [(num (get-col-num (eq-f-name f)))]
+           (let [(num (get-col-num (eq-f-name f) tab))]
              (equal? (list-ref row num) (eq-f-val f)))]
           [(eq2-f? f)
-           (let [(num1 (get-col-num (eq2-f-name f)))
-                 (num2 (get-col-num (eq2-f-name2 f)))]
+           (let [(num1 (get-col-num (eq2-f-name f) tab))
+                 (num2 (get-col-num (eq2-f-name2 f) tab))]
              (equal? (list-ref row num1) (list-ref row num2)))]
           [(not-f? f) (not (check row (not-f-e f)))]
           [(or-f? f) (or (check row (or-f-l f)) (check row (or-f-r f)))]
@@ -164,6 +173,7 @@
             (column-info ncol (column-info-type (car cols)))
             (car cols))
         (make-cols (cdr cols)))))
+  
   (table (make-cols (table-schema tab)) (table-rows tab)))
 
 ; Złączenie kartezjańskie
@@ -173,6 +183,7 @@
     (cond [(null? rows1) null]
           [(null? rows2) (make-rows (cdr rows1) (table-rows tab2))]
           [else (cons (append (car rows1) (car rows2)) (make-rows rows1 (cdr rows2)))]))
+  
   (table (append (table-schema tab1) (table-schema tab2))
          (make-rows (table-rows tab1) (table-rows tab2))))
 
