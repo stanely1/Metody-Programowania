@@ -1,5 +1,0 @@
-#lang racket
-
-(define example (mcons 1 (mcons 2 (mcons 'x (mcons 4 null)))))
-
-(define (mreverse! xs) xs)
