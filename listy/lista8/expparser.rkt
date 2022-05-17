@@ -1,6 +1,7 @@
 #lang racket
 
 (require "parsing.rkt")
+(require "syntax.rkt")
 
 ; ====================================================
 ; Gramatyki bezkontekstowe
@@ -40,6 +41,3 @@
 
 (define (run-exp-parser se)
   (run-named-parser grammar "expression" (list se)))
-
-(define (parse-exp se)
-  (run-exp-parser (s-exp-content se)))

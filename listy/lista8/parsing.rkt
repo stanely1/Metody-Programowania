@@ -1,12 +1,8 @@
 #lang racket
-(require "syntax.rkt")
-(require (only-in plait s-exp-content))
 
 (provide
  (contract-out
-  [run-named-parser (-> any/c any/c any/c any/c)])
- (all-from-out "syntax.rkt")
- (all-from-out plait))
+  [run-named-parser (-> any/c any/c any/c any/c)]))
 
 (struct parse-ok (elems rest))
 
