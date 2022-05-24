@@ -50,10 +50,7 @@
 
 ; parsowanie listy argumentow
 (define (parse-op-args [args : (Listof S-Exp)]) : (Listof Exp)
-  (type-case (Listof S-Exp) args
-    [empty empty]
-    [(cons s xs)
-     (cons (parse s) (parse-op-args xs))]))
+  (map parse args))
 
 (define (parse-op [op : Symbol]) : Op
   (cond
@@ -81,10 +78,7 @@
 
 ; evaluacja listy argumentow
 (define (eval-op-args xs) : (Listof Value)
-  (type-case (Listof Exp) xs
-    [empty empty]
-    [(cons e xs)
-     (cons (eval e) (eval-op-args xs))]))
+  (map eval xs))
 
 (define (run [e : S-Exp]) : Value
   (eval (parse e)))

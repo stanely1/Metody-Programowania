@@ -63,10 +63,7 @@
 
 ;; parsowanie listy (list x1 x2 ...)
 (define (parse-list [xs : (Listof S-Exp)]) : (Listof Exp)
-  (type-case (Listof S-Exp) xs
-    [empty empty]
-    [(cons e xs)
-     (cons (parse e) (parse-list xs))]))
+  (map parse xs))
 
 (define (parse-cond [ss : (Listof S-Exp)]) : (Listof (Exp * Exp))
   (type-case (Listof S-Exp) ss
@@ -170,10 +167,7 @@
          (listV (eval-list ls))])]))
 
 (define (eval-list [ls : (Listof Exp)]) : (Listof Value)
-  (type-case (Listof Exp) ls
-    [empty empty]
-    [(cons e ls)
-     (cons (eval e) (eval-list ls))]))
+  (map eval ls))
         
 
 (define (cond->if [cs : (Listof (Exp * Exp))]) : Exp

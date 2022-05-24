@@ -99,7 +99,7 @@
     [(ifE b l r)
      (ifE (desugarate b) (desugarate l) (desugarate r))]
     [(condE cs)
-     (cond->if cs)]))
+     (desugarate (cond->if cs))]))
 
 (define (cond->if [cs : (Listof (Exp * Exp))]) : Exp
   (type-case (Listof (Exp * Exp)) cs
